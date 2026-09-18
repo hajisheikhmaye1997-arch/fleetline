@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fleetline — Seed sample data</title>
+<style>
+  body{ font-family:sans-serif; background:#14171A; color:#fff; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+  .card{ background:#fff; color:#181B18; border-radius:10px; padding:28px; width:360px; max-width:90vw; }
+  input{ width:100%; padding:10px; margin-bottom:10px; border:1px solid #DAD7CE; border-radius:6px; font-size:14px; }
+  button{ width:100%; padding:12px; border:none; border-radius:6px; background:#FF6A1A; font-weight:700; cursor:pointer; font-size:14px; }
+  #log{ margin-top:14px; font-size:12.5px; white-space:pre-wrap; color:#3F7D58; }
+  .err{ color:#B23A2E; }
+  p{ font-size:13px; color:#6B6F6A; margin-bottom:14px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h2 style="margin-bottom:8px;">Seed sample data</h2>
+  <p>Run this once, signed in as an <b>owner</b> account, to pre-fill trucks, drivers, and finance data so the dashboard isn't empty on day one. Safe to run more than once — it just overwrites the same sample records.</p>
+  <input id="email" type="email" placeholder="Owner email">
+  <input id="password" type="password" placeholder="Owner password">
+  <button id="run">Sign in &amp; seed data</button>
+  <div id="log"></div>
+</div>
+
+<script type="module">
+  import { auth, db } from './firebase-init.js';
+  import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  const log = (msg, isErr) => {
+    const el = document.getElementById('log');
+    el.innerHTML += (isErr ? `<div class="err">${msg}</div>` : `<div>${msg}</div>`);
+  };
+
+  document.getElementById('run').addEventListener('click', async () => {
+    document.getElementById('log').innerHTML = '';
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const profileSnap = await getDoc(doc(db, 'users', cred.user.uid));
+      if (!profileSnap.exists() || profileSnap.data().role !== 'owner') {
+        log('This account is not set up as an owner (add a /users/' + cred.user.uid + ' doc with role: "owner" first).', true);
+        return;
+      }
+      log('Signed in as owner. Seeding…');
+
+      const trucks = [
+        {id:"KDA 123X", model:"Freightliner Cascadia", driverName:"D. Okafor", lastService:"228,900 km", nextService:"240,000 km", status:"active"},
+        {id:"KBZ 445T", model:"Volvo VNL 760", driverName:"M. Alvarez", lastService:"148,300 km", nextService:"160,000 km", status:"active"},
+        {id:"KCM 902L", model:"Kenworth T680", driverName:"S. Chen", lastService:"329,400 km", nextService:"340,000 km", status:"active"},
+        {id:"KDG 331Q", model:"Peterbilt 579", driverName:"—", lastService:"118,600 km", nextService:"120,000 km", status:"maint"},
+        {id:"KBN 771M", model:"Freightliner Cascadia", driverName:"R. Adeyemi", lastService:"241,500 km", nextService:"260,000 km", status:"active"},
+        {id:"KCY 118R", model:"Mack Anthem", driverName:"J. Torres", lastService:"294,800 km", nextService:"300,000 km", status:"active"},
+        {id:"KDF 560P", model:"Volvo VNL 760", driverName:"L. Novak", lastService:"207,900 km", nextService:"220,000 km", status:"maint"},
+        {id:"KBP 984S", model:"Kenworth T680", driverName:"P. Osei", lastService:"105,200 km", nextService:"120,000 km", status:"active"},
+      ];
+      const drivers = [
+        {name:"D. Okafor", license:"CDL-A · exp 5d", truck:"KDA 123X", status:"duty"},
+        {name:"M. Alvarez", license:"CDL-A · exp 90d", truck:"KBZ 445T", status:"duty"},
+        {name:"S. Chen", license:"CDL-A · exp 210d", truck:"KCM 902L", status:"duty"},
+        {name:"R. Adeyemi", license:"CDL-B · exp 140d", truck:"KBN 771M", status:"duty"},
+        {name:"J. Torres", license:"CDL-A · exp 60d", truck:"KCY 118R", status:"leave"},
+        {name:"L. Novak", license:"CDL-A · exp 300d", truck:"KDF 560P", status:"duty"},
+        {name:"P. Osei", license:"CDL-A · exp 45d", truck:"KBP 984S", status:"duty"},
+      ];
+      const financeExtras = {
+        "KDA 123X": {maint:45000, loan:38000, loanBalance:720000, salary:85000, other:6000},
+        "KBZ 445T": {maint:26000, loan:0,     loanBalance:0,      salary:85000, other:3000},
+        "KCM 902L": {maint:68000, loan:45000, loanBalance:1050000,salary:78000, other:12000},
+        "KDG 331Q": {maint:128000,loan:45000, loanBalance:1160000,salary:0,     other:21000},
+        "KBN 771M": {maint:19000, loan:35000, loanBalance:590000, salary:78000, other:4500},
+        "KCY 118R": {maint:36000, loan:0,     loanBalance:0,      salary:85000, other:3500},
+        "KDF 560P": {maint:103000,loan:45000, loanBalance:1210000,salary:85000, other:15000},
+        "KBP 984S": {maint:16000, loan:41000, loanBalance:490000, salary:78000, other:2500},
+      };
+
+      for (const t of trucks) { await setDoc(doc(db, 'trucks', t.id), t); log('Truck ' + t.id + ' ✓'); }
+      for (const d of drivers) { await setDoc(doc(db, 'drivers', d.name.replace(/\s+/g,'_')), d); log('Driver ' + d.name + ' ✓'); }
+      for (const plate in financeExtras) { await setDoc(doc(db, 'financeExtras', plate), financeExtras[plate]); log('Finance extras ' + plate + ' ✓'); }
+
+      log('Done. Open the dashboard — it should now show live data.');
+    } catch (err) {
+      log('Failed: ' + err.message, true);
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function myRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    function isOwner() {
+      return isSignedIn() && myRole() == 'owner';
+    }
+    function isDriver() {
+      return isSignedIn() && myRole() == 'driver';
+    }
+
+    // Each user can read their own profile; only the profile owner or an owner-role account can write it.
+    match /users/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isOwner());
+      allow write: if isOwner();
+    }
+
+    // Owner sees/manages everything. Drivers only need read access to see their own truck info.
+    match /trucks/{plate} {
+      allow read: if isSignedIn();
+      allow write: if isOwner();
+    }
+
+    match /drivers/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner();
+    }
+
+    match /financeExtras/{plate} {
+      allow read: if isOwner();
+      allow write: if isOwner();
+    }
+
+    // Trips: a driver can create their own trips and read their own trips.
+    // Only the owner can read every trip (for the dashboard) or edit/delete any trip.
+    match /trips/{tripId} {
+      allow create: if isDriver() && request.resource.data.driverUid == request.auth.uid;
+      allow read: if isOwner() || (isDriver() && resource.data.driverUid == request.auth.uid);
+      allow update, delete: if isOwner();
+    }
+  }
+}

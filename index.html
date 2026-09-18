@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fleetline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#181B18;
+    --paper:#F2F1EC;
+    --panel:#FFFFFF;
+    --asphalt:#14171A;
+    --asphalt-2:#20242A;
+    --line:#DAD7CE;
+    --orange:#FF6A1A;
+    --teal:#1E5F6E;
+    --moss:#3F7D58;
+    --brick:#B23A2E;
+    --mute:#6B6F6A;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{ display:flex; min-height:100vh; }
+
+  /* SIDEBAR */
+  .sidebar{
+    width:220px; flex-shrink:0;
+    background:var(--asphalt);
+    color:#EDECE6;
+    display:flex; flex-direction:column;
+    position:sticky; top:0; height:100vh;
+  }
+  .brand{
+    padding:22px 20px 18px 20px;
+    display:flex; align-items:center; gap:9px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .brand-mark{
+    width:28px; height:28px; border-radius:3px;
+    background:var(--orange);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Barlow Condensed'; font-weight:700; font-size:16px; color:#161616;
+  }
+  .brand-name{
+    font-family:'Barlow Condensed'; font-weight:600; font-size:21px; letter-spacing:0.2px;
+  }
+  nav{ flex:1; padding:14px 10px; display:flex; flex-direction:column; gap:2px; }
+  .nav-item{
+    display:flex; align-items:center; gap:10px;
+    padding:9px 12px; border-radius:6px; cursor:pointer;
+    font-size:14px; color:#C7C9C3; font-weight:500;
+    transition:background .15s, color .15s;
+    border-left:3px solid transparent;
+  }
+  .nav-item svg{ width:17px; height:17px; flex-shrink:0; opacity:.85; }
+  .nav-item:hover{ background:rgba(255,255,255,0.06); color:#fff; }
+  .nav-item.active{
+    background:rgba(255,106,26,0.14);
+    color:#fff;
+    border-left:3px solid var(--orange);
+  }
+  .sidebar-foot{
+    padding:14px 20px 20px 20px; font-size:11.5px; color:#8B8E88;
+    border-top:1px solid rgba(255,255,255,0.08);
+  }
+
+  /* MAIN */
+  main{ flex:1; min-width:0; }
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 32px 16px 32px;
+  }
+  .page-title{ font-family:'Barlow Condensed'; font-size:30px; font-weight:700; }
+  .page-sub{ color:var(--mute); font-size:13.5px; margin-top:2px; }
+  .roadline{
+    height:0; border-top:2px dashed #CFCBBF; margin:0 32px 22px 32px;
+  }
+  .content{ padding:0 32px 40px 32px; }
+
+  .profile-pill{
+    display:flex; align-items:center; gap:8px;
+    background:var(--panel); border:1px solid var(--line);
+    border-radius:20px; padding:6px 14px 6px 6px; font-size:13px; font-weight:600;
+  }
+  .avatar{
+    width:26px; height:26px; border-radius:50%; background:var(--teal); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+  }
+
+  /* STAT GRID - asymmetric, not identical cards */
+  .stat-grid{
+    display:grid;
+    grid-template-columns: 1.3fr 1fr 1fr;
+    gap:16px; margin-bottom:20px;
+  }
+  .stat-hero{
+    background:var(--asphalt); color:#fff; border-radius:8px;
+    padding:22px 24px; display:flex; flex-direction:column; justify-content:space-between;
+    grid-row: span 2;
+  }
+  .stat-hero .num{ font-family:'Barlow Condensed'; font-size:56px; font-weight:700; line-height:1; }
+  .stat-hero .lbl{ font-size:13px; color:#B9BBB4; margin-top:4px; }
+  .stat-hero .breakdown{ display:flex; gap:18px; margin-top:18px; }
+  .stat-hero .breakdown div{ font-size:12px; color:#9CA098; }
+  .stat-hero .breakdown b{ display:block; font-family:'Barlow Condensed'; font-size:20px; color:#fff; font-weight:600; }
+
+  .stat-card{
+    background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--teal);
+    border-radius:6px; padding:16px 18px;
+  }
+  .stat-card.orange{ border-left-color:var(--orange); }
+  .stat-card.moss{ border-left-color:var(--moss); }
+  .stat-card.brick{ border-left-color:var(--brick); }
+  .stat-card .lbl{ font-size:12.5px; color:var(--mute); font-weight:500; }
+  .stat-card .num{ font-family:'Barlow Condensed'; font-size:32px; font-weight:700; margin-top:2px; }
+
+  .panels{ display:grid; grid-template-columns: 1.4fr 1fr; gap:16px; margin-bottom:20px; }
+  .panel{ background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:20px 22px; }
+  .panel h3{ font-family:'Barlow Condensed'; font-size:19px; font-weight:600; }
+  .panel .panel-sub{ font-size:12.5px; color:var(--mute); margin-bottom:14px; }
+  .chart-wrap{ height:220px; }
+
+  .exp-row{ display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid #EDEBE3; font-size:13px; }
+  .exp-row:last-child{ border-bottom:none; }
+  .exp-name{ font-weight:600; }
+  .exp-days{ font-size:11.5px; padding:3px 8px; border-radius:20px; font-weight:600; }
+  .exp-days.soon{ background:#FBE7DF; color:var(--brick); }
+  .exp-days.ok{ background:#E4EEE6; color:var(--moss); }
+  .exp-days.brick{ background:#F4DAD6; color:var(--brick); }
+
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  th{ text-align:left; font-size:11.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--mute); font-weight:600; padding:0 12px 10px 12px; border-bottom:1px solid var(--line); }
+  td{ padding:12px; border-bottom:1px solid #EFEDE6; }
+  tr:last-child td{ border-bottom:none; }
+  .tbl-wrap{ background:var(--panel); border:1px solid var(--line); border-radius:8px; overflow-x:auto; overflow-y:hidden; }
+  .tbl-head{ padding:18px 22px 4px 22px; display:flex; justify-content:space-between; align-items:center; }
+  .tbl-head h3{ font-family:'Barlow Condensed'; font-size:19px; font-weight:600; }
+  table{ padding:0 10px; }
+  .tbl-wrap table{ width:calc(100% - 20px); margin:0 10px; }
+
+  .pill{ font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:20px; display:inline-block; }
+  .pill.active{ background:#E4EEE6; color:var(--moss); }
+  .pill.maint{ background:#FBE7DF; color:var(--brick); }
+  .pill.duty{ background:#DFEBEE; color:var(--teal); }
+  .pill.leave{ background:#F1EFE2; color:#8A7C3D; }
+
+  .truck-id{ font-family:'Barlow Condensed'; font-weight:700; font-size:15px; }
+  .driver-cell{ display:flex; align-items:center; gap:9px; }
+  .mini-avatar{ width:28px; height:28px; border-radius:50%; background:#DDE3DF; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--teal); }
+
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  @media (max-width: 900px){
+    .stat-grid{ grid-template-columns:1fr 1fr; }
+    .stat-hero{ grid-column:span 2; grid-row:auto; }
+    .panels{ grid-template-columns:1fr; }
+    .sidebar{ width:66px; }
+    .brand-name, .nav-item span.label{ display:none; }
+    .content, .topbar{ padding-left:16px; padding-right:16px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen" style="min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--asphalt);">
+  <div style="background:#fff; border-radius:10px; padding:32px 30px; width:320px; max-width:90vw;">
+    <div style="display:flex; align-items:center; gap:9px; margin-bottom:18px;">
+      <div style="width:28px; height:28px; border-radius:3px; background:var(--orange); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed'; font-weight:700; font-size:16px; color:#161616;">F</div>
+      <div style="font-family:'Barlow Condensed'; font-weight:600; font-size:21px;">Fleetline</div>
+    </div>
+    <div style="font-size:13px; color:var(--mute); margin-bottom:16px;">Owner / manager sign in</div>
+    <input id="login-email" type="email" placeholder="Email" style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:6px; margin-bottom:10px; font-size:14px; font-family:inherit;">
+    <input id="login-password" type="password" placeholder="Password" style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:6px; margin-bottom:14px; font-size:14px; font-family:inherit;">
+    <button id="login-btn" style="width:100%; padding:11px; border:none; border-radius:6px; background:var(--orange); color:#161616; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit;">Sign in</button>
+    <div id="login-error" style="color:var(--brick); font-size:12.5px; margin-top:10px; display:none;"></div>
+  </div>
+</div>
+
+<div class="app" id="app-root" style="display:none;">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">F</div>
+      <div class="brand-name">Fleetline</div>
+    </div>
+    <nav>
+      <div class="nav-item active" data-view="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span class="label">Dashboard</span>
+      </div>
+      <div class="nav-item" data-view="trucks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="7" width="14" height="10"/><path d="M15 10h4l3 3v4h-7z"/><circle cx="6" cy="19" r="2"/><circle cx="17" cy="19" r="2"/></svg>
+        <span class="label">Trucks</span>
+      </div>
+      <div class="nav-item" data-view="drivers">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span class="label">Drivers</span>
+      </div>
+      <div class="nav-item" data-view="trips">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span class="label">Trips</span>
+      </div>
+      <div class="nav-item" data-view="notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="label">Notifications</span>
+      </div>
+      <div class="nav-item" data-view="finances">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
+        <span class="label">Finances</span>
+      </div>
+    </nav>
+    <div class="sidebar-foot">Fleetline v1.0 — demo data</div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <div class="page-title" id="page-title">Dashboard</div>
+        <div class="page-sub" id="page-sub">Overview of your fleet, drivers, and trips</div>
+      </div>
+      <div class="profile-pill"><div class="avatar" id="owner-avatar">JM</div><span id="owner-name">Jordan Mensah</span><button id="signout-btn" style="margin-left:8px; border:none; background:none; color:var(--mute); font-size:12px; cursor:pointer; font-family:inherit; text-decoration:underline;">Sign out</button></div>
+    </div>
+    <div class="roadline"></div>
+
+    <div class="content">
+
+      <!-- DASHBOARD VIEW -->
+      <div class="view active" id="view-dashboard">
+        <div class="stat-grid">
+          <div class="stat-hero">
+            <div>
+              <div class="num" id="db-total-trucks">—</div>
+              <div class="lbl">Total trucks</div>
+            </div>
+            <div class="breakdown">
+              <div><b id="db-active">—</b>Active</div>
+              <div><b id="db-maint">—</b>Maintenance</div>
+              <div><b id="db-suspended">—</b>Suspended</div>
+            </div>
+          </div>
+          <div class="stat-card orange">
+            <div class="lbl">Total drivers</div>
+            <div class="num" id="db-total-drivers">—</div>
+          </div>
+          <div class="stat-card moss">
+            <div class="lbl">On duty</div>
+            <div class="num" id="db-on-duty">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="lbl">On leave</div>
+            <div class="num" id="db-on-leave">—</div>
+          </div>
+          <div class="stat-card brick">
+            <div class="lbl">Licenses expiring soon</div>
+            <div class="num" id="db-expiring">—</div>
+          </div>
+        </div>
+
+        <div class="panels">
+          <div class="panel">
+            <h3>Fleet utilization</h3>
+            <div class="panel-sub">Current truck status distribution</div>
+            <div class="chart-wrap"><canvas id="chartFleet"></canvas></div>
+          </div>
+          <div class="panel">
+            <h3>Expiring documents</h3>
+            <div class="panel-sub">Licenses and permits needing renewal</div>
+            <div class="exp-row"><div><div class="exp-name">D. Okafor — CDL License</div></div><div class="exp-days soon">5 days</div></div>
+            <div class="exp-row"><div><div class="exp-name">Truck 07 — Insurance</div></div><div class="exp-days soon">9 days</div></div>
+            <div class="exp-row"><div><div class="exp-name">M. Alvarez — Medical Card</div></div><div class="exp-days ok">22 days</div></div>
+            <div class="exp-row"><div><div class="exp-name">Truck 03 — Registration</div></div><div class="exp-days ok">31 days</div></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Driver status</h3>
+          <div class="panel-sub">Current duty distribution across the roster</div>
+          <div class="chart-wrap" style="height:180px;"><canvas id="chartDrivers"></canvas></div>
+        </div>
+      </div>
+
+      <!-- TRUCKS VIEW -->
+      <div class="view" id="view-trucks">
+        <div class="tbl-wrap">
+          <div class="tbl-head"><h3>Fleet roster</h3><div class="page-sub">14 trucks</div></div>
+          <table>
+            <thead><tr><th>Truck</th><th>Model</th><th>Driver</th><th>Last service</th><th>Next service</th><th>Status</th></tr></thead>
+            <tbody id="trucks-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DRIVERS VIEW -->
+      <div class="view" id="view-drivers">
+        <div class="tbl-wrap">
+          <div class="tbl-head"><h3>Drivers</h3><div class="page-sub">17 drivers</div></div>
+          <table>
+            <thead><tr><th>Driver</th><th>License</th><th>Assigned truck</th><th>Status</th></tr></thead>
+            <tbody id="drivers-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TRIPS VIEW -->
+      <div class="view" id="view-trips">
+        <div class="tbl-wrap">
+          <div class="tbl-head"><h3>Trips</h3><div class="page-sub">Last 7 days</div></div>
+          <table>
+            <thead><tr><th>Start date</th><th>Route</th><th>Truck</th><th>Tonnes</th><th>Commodity price/tonne</th><th>Fuel used</th><th>Fuel price/L</th><th>Offloading date</th><th>Driver allowance</th><th>Photo</th><th>Status</th></tr></thead>
+            <tbody id="trips-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS VIEW -->
+      <div class="view" id="view-notifications">
+        <div class="panel">
+          <h3>Notifications</h3>
+          <div class="panel-sub">Recent alerts across your fleet</div>
+          <div class="exp-row"><div><div class="exp-name">Truck 07 due for oil change</div></div><div class="exp-days soon">Today</div></div>
+          <div class="exp-row"><div><div class="exp-name">D. Okafor's CDL expires soon</div></div><div class="exp-days soon">5 days</div></div>
+          <div class="exp-row"><div><div class="exp-name">Trip #2291 completed on time</div></div><div class="exp-days ok">Yesterday</div></div>
+          <div class="exp-row"><div><div class="exp-name">Truck 11 returned from maintenance</div></div><div class="exp-days ok">2 days ago</div></div>
+        </div>
+      </div>
+
+      <!-- FINANCES VIEW -->
+      <div class="view" id="view-finances">
+        <div class="stat-grid">
+          <div class="stat-hero">
+            <div>
+              <div class="num" id="fin-total-cost">—</div>
+              <div class="lbl">Total fleet cost — this month</div>
+            </div>
+            <div class="breakdown">
+              <div><b id="fin-b-fuel">—</b>Fuel</div>
+              <div><b id="fin-b-maint">—</b>Maintenance</div>
+              <div><b id="fin-b-loan">—</b>Loan/lease</div>
+              <div><b id="fin-b-allowance">—</b>Allowance</div>
+            </div>
+          </div>
+          <div class="stat-card orange">
+            <div class="lbl">Driver salaries — this month</div>
+            <div class="num" id="fin-salary">—</div>
+          </div>
+          <div class="stat-card" style="border-left-color:var(--teal);">
+            <div class="lbl">Driver allowance — this month</div>
+            <div class="num" id="fin-allowance">—</div>
+          </div>
+          <div class="stat-card moss">
+            <div class="lbl">Revenue — this month</div>
+            <div class="num" id="fin-revenue">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="lbl">Net margin</div>
+            <div class="num" id="fin-margin">—</div>
+          </div>
+          <div class="stat-card brick" style="grid-column: 1 / -1;">
+            <div class="lbl">Overdue payments</div>
+            <div class="num">1</div>
+          </div>
+        </div>
+
+        <div class="panels">
+          <div class="panel">
+            <h3>Cost breakdown by category</h3>
+            <div class="panel-sub">Fleet-wide spend, last 6 months</div>
+            <div class="chart-wrap"><canvas id="chartCosts"></canvas></div>
+          </div>
+          <div class="panel">
+            <h3>Upcoming payments</h3>
+            <div class="panel-sub">Loan, lease, and insurance dues</div>
+            <div class="exp-row"><div><div class="exp-name">KDG 331Q — Lease payment</div></div><div class="exp-days soon">Due in 3 days</div></div>
+            <div class="exp-row"><div><div class="exp-name">KDA 123X — Loan installment</div></div><div class="exp-days soon">Due in 6 days</div></div>
+            <div class="exp-row"><div><div class="exp-name">Fleet insurance — quarterly</div></div><div class="exp-days ok">Due in 18 days</div></div>
+            <div class="exp-row"><div><div class="exp-name">KDF 560P — Lease payment</div></div><div class="exp-days brick">Overdue 2 days</div></div>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+          <div class="tbl-head"><h3>Cost per truck</h3><div class="page-sub">This month</div></div>
+          <table>
+            <thead><tr><th>Truck</th><th>Fuel</th><th>Maintenance</th><th>Loan/lease</th><th>Loan balance</th><th>Driver salary</th><th>Driver allowance</th><th>Other</th><th>Income</th><th>Expenses</th><th>Net</th></tr></thead>
+            <tbody id="finances-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { auth, db } from './firebase-init.js';
+  import { onAuthStateChanged, signInWithEmailAndPassword, signOut }
+    from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import { collection, doc, getDoc, onSnapshot, query, orderBy, limit }
+    from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  function pillFor(status){
+    const map = {active:"active", maint:"maint", duty:"duty", leave:"leave"};
+    const label = {active:"Active", maint:"Maintenance", duty:"On duty", leave:"On leave"};
+    return `<span class="pill ${map[status] || 'active'}">${label[status] || status}</span>`;
+  }
+  const money = n => 'KSh ' + Math.round(n || 0).toLocaleString('en-US');
+  const kshShort = n => 'KSh ' + ((n || 0)/1000).toFixed(1) + 'k';
+
+  // Live data, kept in sync by Firestore listeners below
+  let trucksData = [], driversData = [], tripsData = [], financeExtrasData = {};
+  let chartFleet, chartDrivers, chartCosts;
+
+  function renderTrucks(){
+    document.getElementById('trucks-body').innerHTML = trucksData.map(t => `
+      <tr><td class="truck-id">${t.id}</td><td>${t.model || ''}</td><td>${t.driverName || '—'}</td><td>${t.lastService || '—'}</td><td>${t.nextService || '—'}</td><td>${pillFor(t.status)}</td></tr>
+    `).join('') || '<tr><td colspan="6" style="color:var(--mute); text-align:center; padding:24px;">No trucks yet</td></tr>';
+    document.querySelector('#view-trucks .page-sub').textContent = trucksData.length + ' trucks';
+  }
+
+  function renderDrivers(){
+    document.getElementById('drivers-body').innerHTML = driversData.map(d => `
+      <tr><td><div class="driver-cell"><div class="mini-avatar">${(d.name||'?').split(' ').map(w=>w[0]).join('')}</div>${d.name}</div></td><td>${d.license || '—'}</td><td>${d.truck || '—'}</td><td>${pillFor(d.status)}</td></tr>
+    `).join('') || '<tr><td colspan="4" style="color:var(--mute); text-align:center; padding:24px;">No drivers yet</td></tr>';
+    document.querySelector('#view-drivers .page-sub').textContent = driversData.length + ' drivers';
+  }
+
+  function renderTrips(){
+    document.getElementById('trips-body').innerHTML = tripsData.map(t => `
+      <tr><td>${t.start || '—'}</td><td>${t.route || '—'}</td><td>${t.truck || '—'}</td><td>${(t.tonnes||0)} t</td><td>KSh ${(t.commodityPrice||0).toLocaleString('en-US')}</td><td>${(t.fuel||0)} L</td><td>KSh ${t.fuelPrice||0}</td><td>${t.offload || '—'}</td><td>KSh ${(t.allowance||0).toLocaleString('en-US')}</td><td>${t.podPhotoUrl ? `<a href="${t.podPhotoUrl}" target="_blank" style="color:var(--teal); font-weight:600;">View</a>` : '—'}</td><td>${pillFor(t.status || 'active')}</td></tr>
+    `).join('') || '<tr><td colspan="11" style="color:var(--mute); text-align:center; padding:24px;">No trips submitted yet</td></tr>';
+  }
+
+  function tripAggregates(truckId){
+    return tripsData.filter(t => t.truck === truckId).reduce((acc, t) => {
+      acc.fuel += (t.fuel||0) * (t.fuelPrice||0);
+      acc.income += (t.tonnes||0) * (t.commodityPrice||0);
+      acc.allowance += (t.allowance||0);
+      return acc;
+    }, {fuel:0, income:0, allowance:0});
+  }
+
+  function renderFinancesAndDashboard(){
+    const finances = trucksData.map(tr => {
+      const extra = financeExtrasData[tr.id] || {maint:0, loan:0, loanBalance:0, salary:0, other:0};
+      const agg = tripAggregates(tr.id);
+      return { truck: tr.id, fuel: agg.fuel, income: agg.income, allowance: agg.allowance, ...extra };
+    });
+
+    document.getElementById('finances-body').innerHTML = finances.map(f => {
+      const expenses = f.fuel+f.maint+f.loan+f.salary+f.allowance+f.other;
+      const net = f.income - expenses;
+      const netColor = net >= 0 ? 'var(--moss)' : 'var(--brick)';
+      return `<tr><td class="truck-id">${f.truck}</td><td>${money(f.fuel)}</td><td>${money(f.maint)}</td><td>${f.loan ? money(f.loan) : '—'}</td><td>${f.loanBalance ? money(f.loanBalance) : '—'}</td><td>${f.salary ? money(f.salary) : '—'}</td><td>${f.allowance ? money(f.allowance) : '—'}</td><td>${f.other ? money(f.other) : '—'}</td><td>${money(f.income)}</td><td>${money(expenses)}</td><td style="color:${netColor}; font-weight:700;">${net >= 0 ? '' : '-'}${money(Math.abs(net))}</td></tr>`;
+    }).join('') || '<tr><td colspan="11" style="color:var(--mute); text-align:center; padding:24px;">No trucks yet</td></tr>';
+
+    const finTotals = finances.reduce((acc, f) => {
+      acc.fuel += f.fuel; acc.maint += f.maint; acc.loan += f.loan;
+      acc.salary += f.salary; acc.allowance += f.allowance; acc.other += f.other;
+      acc.income += f.income;
+      return acc;
+    }, {fuel:0, maint:0, loan:0, salary:0, allowance:0, other:0, income:0});
+    const finTotalCost = finTotals.fuel + finTotals.maint + finTotals.loan + finTotals.salary + finTotals.allowance + finTotals.other;
+    const finMargin = finTotals.income ? ((finTotals.income - finTotalCost) / finTotals.income * 100) : 0;
+
+    document.getElementById('fin-total-cost').textContent = kshShort(finTotalCost);
+    document.getElementById('fin-b-fuel').textContent = kshShort(finTotals.fuel);
+    document.getElementById('fin-b-maint').textContent = kshShort(finTotals.maint);
+    document.getElementById('fin-b-loan').textContent = kshShort(finTotals.loan);
+    document.getElementById('fin-b-allowance').textContent = kshShort(finTotals.allowance);
+    document.getElementById('fin-salary').textContent = kshShort(finTotals.salary);
+    document.getElementById('fin-allowance').textContent = kshShort(finTotals.allowance);
+    document.getElementById('fin-revenue').textContent = kshShort(finTotals.income);
+    document.getElementById('fin-margin').textContent = finMargin.toFixed(1) + '%';
+
+    // Dashboard stat cards
+    const active = trucksData.filter(t=>t.status==='active').length;
+    const maint = trucksData.filter(t=>t.status==='maint').length;
+    const suspended = trucksData.filter(t=>t.status==='suspended').length;
+    document.getElementById('db-total-trucks').textContent = trucksData.length;
+    document.getElementById('db-active').textContent = active;
+    document.getElementById('db-maint').textContent = maint;
+    document.getElementById('db-suspended').textContent = suspended;
+    document.getElementById('db-total-drivers').textContent = driversData.length;
+    document.getElementById('db-on-duty').textContent = driversData.filter(d=>d.status==='duty').length;
+    document.getElementById('db-on-leave').textContent = driversData.filter(d=>d.status==='leave').length;
+    const expiring = driversData.filter(d => {
+      const m = (d.license||'').match(/exp (\d+)d/);
+      return m && parseInt(m[1],10) <= 14;
+    }).length;
+    document.getElementById('db-expiring').textContent = expiring;
+
+    // Charts (destroy + recreate to reflect latest data)
+    if (chartFleet) chartFleet.destroy();
+    chartFleet = new Chart(document.getElementById('chartFleet'), {
+      type:'doughnut',
+      data:{ labels:['Active','Maintenance','Suspended'], datasets:[{ data:[active,maint,suspended], backgroundColor:['#3F7D58','#B23A2E','#DAD7CE'], borderWidth:0 }] },
+      options:{ plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}}}, cutout:'62%' }
+    });
+
+    if (chartDrivers) chartDrivers.destroy();
+    const onDuty = driversData.filter(d=>d.status==='duty').length;
+    const onLeave = driversData.filter(d=>d.status==='leave').length;
+    chartDrivers = new Chart(document.getElementById('chartDrivers'), {
+      type:'bar',
+      data:{ labels:['On duty','On leave','Active license','Expiring soon'],
+        datasets:[{ data:[onDuty,onLeave, driversData.length - expiring, expiring], backgroundColor:['#1E5F6E','#8A7C3D','#3F7D58','#B23A2E'], borderRadius:4, maxBarThickness:46 }] },
+      options:{ plugins:{legend:{display:false}}, scales:{ y:{beginAtZero:true, grid:{color:'#EFEDE6'}}, x:{grid:{display:false}} } }
+    });
+
+    if (chartCosts) chartCosts.destroy();
+    chartCosts = new Chart(document.getElementById('chartCosts'), {
+      type:'bar',
+      data:{ labels:['Apr','May','Jun','Jul','Aug','This month'],
+        datasets:[
+          { label:'Fuel', data:[298000,312000,327000,336000,329000, finTotals.fuel], backgroundColor:'#FF6A1A' },
+          { label:'Maintenance', data:[101000,130000,111000,145000,138000, finTotals.maint], backgroundColor:'#1E5F6E' },
+          { label:'Loan/lease', data:[204000,204000,204000,204000,204000, finTotals.loan], backgroundColor:'#DAD7CE' },
+          { label:'Driver salary', data:[295000,298000,301000,299000,302000, finTotals.salary], backgroundColor:'#3F7D58' },
+          { label:'Driver allowance', data:[24000,26500,25000,27800,26000, finTotals.allowance], backgroundColor:'#8A7C3D' }
+        ]
+      },
+      options:{ plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}}},
+        scales:{ x:{stacked:true, grid:{display:false}}, y:{stacked:true, grid:{color:'#EFEDE6'}, ticks:{callback:v=>'KSh '+(v/1000)+'k'}} } }
+    });
+  }
+
+  function renderAll(){ renderTrucks(); renderDrivers(); renderTrips(); renderFinancesAndDashboard(); }
+
+  // Nav switching
+  const titles = {
+    dashboard:["Dashboard","Overview of your fleet, drivers, and trips"],
+    trucks:["Trucks","Full roster and maintenance status"],
+    drivers:["Drivers","Roster, licenses, and duty status"],
+    trips:["Trips","Recent and active routes"],
+    notifications:["Notifications","Alerts across your fleet"],
+    finances:["Finances","Costs, revenue, and payments across your fleet"]
+  };
+  document.querySelectorAll('.nav-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+      item.classList.add('active');
+      const v = item.dataset.view;
+      document.querySelectorAll('.view').forEach(vw=>vw.classList.remove('active'));
+      document.getElementById('view-'+v).classList.add('active');
+      document.getElementById('page-title').textContent = titles[v][0];
+      document.getElementById('page-sub').textContent = titles[v][1];
+    });
+  });
+
+  // ---- Auth + Firestore wiring ----
+  let unsubscribers = [];
+  function teardownListeners(){ unsubscribers.forEach(u => u()); unsubscribers = []; }
+
+  function attachListeners(){
+    unsubscribers.push(onSnapshot(collection(db, 'trucks'), snap => {
+      trucksData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderAll();
+    }));
+    unsubscribers.push(onSnapshot(collection(db, 'drivers'), snap => {
+      driversData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderAll();
+    }));
+    unsubscribers.push(onSnapshot(query(collection(db, 'trips'), orderBy('createdAt', 'desc'), limit(100)), snap => {
+      tripsData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderAll();
+    }));
+    unsubscribers.push(onSnapshot(collection(db, 'financeExtras'), snap => {
+      financeExtrasData = {};
+      snap.docs.forEach(d => { financeExtrasData[d.id] = d.data(); });
+      renderAll();
+    }));
+  }
+
+  const loginScreen = document.getElementById('login-screen');
+  const appRoot = document.getElementById('app-root');
+  const loginError = document.getElementById('login-error');
+
+  document.getElementById('login-btn').addEventListener('click', async () => {
+    loginError.style.display = 'none';
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+      loginError.textContent = 'Sign in failed: ' + (err.code || err.message || 'unknown error');
+      loginError.style.display = 'block';
+    }
+  });
+
+  document.getElementById('signout-btn').addEventListener('click', () => signOut(auth));
+
+  onAuthStateChanged(auth, async (user) => {
+    teardownListeners();
+    if (!user) {
+      loginScreen.style.display = 'flex';
+      appRoot.style.display = 'none';
+      return;
+    }
+    const profileSnap = await getDoc(doc(db, 'users', user.uid));
+    const profile = profileSnap.exists() ? profileSnap.data() : null;
+    if (!profile || profile.role !== 'owner') {
+      loginError.textContent = 'This account is not set up as an owner account.';
+      loginError.style.display = 'block';
+      await signOut(auth);
+      return;
+    }
+    document.getElementById('owner-name').textContent = profile.name || user.email;
+    document.getElementById('owner-avatar').textContent = (profile.name || user.email).split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    loginScreen.style.display = 'none';
+    appRoot.style.display = 'flex';
+    attachListeners();
+  });
+</script>
+</body>
+</html>

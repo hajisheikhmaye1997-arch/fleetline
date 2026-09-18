@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fleetline Driver</title>
+<link rel="manifest" href="driver-manifest.json">
+<meta name="theme-color" content="#14171A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Fleetline Driver">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#181B18; --paper:#F2F1EC; --panel:#FFFFFF; --asphalt:#14171A;
+    --line:#DAD7CE; --orange:#FF6A1A; --teal:#1E5F6E; --moss:#3F7D58; --brick:#B23A2E; --mute:#6B6F6A;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .screen{ min-height:100vh; display:flex; flex-direction:column; }
+  .topbar{ background:var(--asphalt); color:#fff; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; }
+  .brand{ display:flex; align-items:center; gap:9px; }
+  .brand-mark{ width:26px; height:26px; border-radius:3px; background:var(--orange); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed'; font-weight:700; font-size:14px; color:#161616; }
+  .brand-name{ font-family:'Barlow Condensed'; font-weight:600; font-size:18px; }
+  #signout-btn{ background:none; border:none; color:#C7C9C3; font-size:12.5px; text-decoration:underline; cursor:pointer; font-family:inherit; }
+
+  .content{ padding:18px 18px 40px 18px; max-width:520px; width:100%; margin:0 auto; flex:1; }
+  h2{ font-family:'Barlow Condensed'; font-size:24px; font-weight:700; margin-bottom:2px; }
+  .sub{ color:var(--mute); font-size:13px; margin-bottom:18px; }
+
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:12.5px; font-weight:600; color:var(--mute); margin-bottom:5px; }
+  .field input{ width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:7px; font-size:15px; font-family:inherit; background:#fff; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+  .submit-btn{ width:100%; padding:14px; border:none; border-radius:8px; background:var(--orange); color:#161616; font-weight:700; font-size:15px; cursor:pointer; font-family:inherit; margin-top:6px; }
+  .submit-btn:disabled{ opacity:.6; }
+  .msg{ font-size:13px; margin-top:10px; padding:10px 12px; border-radius:6px; display:none; }
+  .msg.ok{ background:#E4EEE6; color:var(--moss); display:block; }
+  .msg.err{ background:#F4DAD6; color:var(--brick); display:block; }
+
+  .truck-badge{ display:inline-flex; align-items:center; gap:7px; background:#fff; border:1px solid var(--line); border-radius:20px; padding:6px 14px; font-size:13px; font-weight:600; margin-bottom:18px; }
+  .truck-badge .dot{ width:8px; height:8px; border-radius:50%; background:var(--moss); }
+
+  .history{ margin-top:26px; }
+  .history h3{ font-family:'Barlow Condensed'; font-size:18px; font-weight:600; margin-bottom:10px; }
+  .trip-card{ background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--teal); border-radius:6px; padding:12px 14px; margin-bottom:10px; font-size:13px; }
+  .trip-card .route{ font-weight:700; margin-bottom:3px; }
+  .trip-card .meta{ color:var(--mute); font-size:12px; }
+
+  /* Login screen */
+  #login-screen{ min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--asphalt); padding:20px; }
+  .login-card{ background:#fff; border-radius:10px; padding:30px 26px; width:100%; max-width:340px; }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="brand" style="margin-bottom:18px;">
+      <div class="brand-mark">F</div>
+      <div class="brand-name" style="color:var(--ink); font-size:20px;">Fleetline Driver</div>
+    </div>
+    <div class="sub" style="margin-bottom:16px;">Sign in with the account your dispatcher created for you</div>
+    <div class="field"><input id="login-email" type="email" placeholder="Email"></div>
+    <div class="field"><input id="login-password" type="password" placeholder="Password"></div>
+    <button id="login-btn" class="submit-btn">Sign in</button>
+    <div id="login-error" class="msg err" style="display:none;"></div>
+  </div>
+</div>
+
+<div class="screen" id="app-root" style="display:none;">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">F</div>
+      <div class="brand-name">Fleetline Driver</div>
+    </div>
+    <button id="signout-btn">Sign out</button>
+  </div>
+
+  <div class="content">
+    <h2 id="greeting">Hi there</h2>
+    <div class="sub">Log a completed or in-progress trip</div>
+    <div class="truck-badge"><span class="dot"></span><span id="truck-label">—</span></div>
+
+    <form id="trip-form">
+      <div class="field"><label>Route</label><input id="f-route" type="text" placeholder="e.g. Nairobi → Mombasa" required></div>
+      <div class="row2">
+        <div class="field"><label>Start date</label><input id="f-start" type="date" required></div>
+        <div class="field"><label>Offloading date</label><input id="f-offload" type="date"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Tonnes carried</label><input id="f-tonnes" type="number" step="0.1" min="0" placeholder="e.g. 18.5" required></div>
+        <div class="field"><label>Commodity price / tonne (KSh)</label><input id="f-commodity" type="number" step="1" min="0" placeholder="e.g. 8200" required></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Fuel used (litres)</label><input id="f-fuel" type="number" step="0.1" min="0" placeholder="e.g. 118" required></div>
+        <div class="field"><label>Fuel price / litre (KSh)</label><input id="f-fuelprice" type="number" step="1" min="0" placeholder="e.g. 194" required></div>
+      </div>
+      <div class="field"><label>Driver allowance (KSh)</label><input id="f-allowance" type="number" step="1" min="0" placeholder="e.g. 4500" required></div>
+      <div class="field">
+        <label>Proof of delivery / receipt photo (optional)</label>
+        <input id="f-photo" type="file" accept="image/*" capture="environment">
+      </div>
+      <button type="submit" class="submit-btn" id="submit-btn">Submit trip</button>
+      <div id="form-msg" class="msg"></div>
+    </form>
+
+    <div class="history">
+      <h3>Your recent trips</h3>
+      <div id="history-list"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { auth, db, storage } from './firebase-init.js';
+  import { onAuthStateChanged, signInWithEmailAndPassword, signOut }
+    from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import { doc, getDoc, setDoc, collection, query, where, orderBy, limit, onSnapshot, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import { ref, uploadBytes, getDownloadURL }
+    from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
+
+  const loginScreen = document.getElementById('login-screen');
+  const appRoot = document.getElementById('app-root');
+  const loginError = document.getElementById('login-error');
+  let currentProfile = null;
+  let currentUid = null;
+  let historyUnsub = null;
+
+  document.getElementById('login-btn').addEventListener('click', async () => {
+    loginError.style.display = 'none';
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+      loginError.textContent = 'Sign in failed: ' + (err.code || err.message || 'unknown error');
+      loginError.style.display = 'block';
+    }
+  });
+
+  document.getElementById('signout-btn').addEventListener('click', () => signOut(auth));
+
+  onAuthStateChanged(auth, async (user) => {
+    if (historyUnsub) { historyUnsub(); historyUnsub = null; }
+    if (!user) {
+      loginScreen.style.display = 'flex';
+      appRoot.style.display = 'none';
+      return;
+    }
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    const profile = snap.exists() ? snap.data() : null;
+    if (!profile || profile.role !== 'driver') {
+      loginError.textContent = 'This account is not set up as a driver account.';
+      loginError.style.display = 'block';
+      await signOut(auth);
+      return;
+    }
+    currentProfile = profile;
+    currentUid = user.uid;
+    document.getElementById('greeting').textContent = 'Hi, ' + (profile.name || 'driver').split(' ')[0];
+    document.getElementById('truck-label').textContent = profile.truckPlate || 'No truck assigned';
+    loginScreen.style.display = 'none';
+    appRoot.style.display = 'flex';
+    listenToHistory(user.uid);
+  });
+
+  function listenToHistory(uid){
+    const q = query(collection(db, 'trips'), where('driverUid', '==', uid), orderBy('createdAt', 'desc'), limit(15));
+    historyUnsub = onSnapshot(q, snap => {
+      const list = document.getElementById('history-list');
+      if (snap.empty) {
+        list.innerHTML = '<div style="color:var(--mute); font-size:13px;">No trips submitted yet.</div>';
+        return;
+      }
+      list.innerHTML = snap.docs.map(d => {
+        const t = d.data();
+        return `<div class="trip-card">
+          <div class="route">${t.route || '—'}</div>
+          <div class="meta">${t.start || ''} → ${t.offload || ''} · ${t.tonnes || 0} t · ${t.fuel || 0} L</div>
+        </div>`;
+      }).join('');
+    });
+  }
+
+  document.getElementById('trip-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = document.getElementById('submit-btn');
+    const msg = document.getElementById('form-msg');
+    msg.className = 'msg'; msg.style.display = 'none';
+    submitBtn.disabled = true; submitBtn.textContent = 'Submitting…';
+
+    try {
+      const tripRef = doc(collection(db, 'trips')); // pre-generate ID so photo path + doc share it
+
+      let podPhotoUrl = '';
+      const photoFile = document.getElementById('f-photo').files[0];
+      if (photoFile) {
+        const photoRef = ref(storage, `trips/${tripRef.id}/${photoFile.name}`);
+        await uploadBytes(photoRef, photoFile);
+        podPhotoUrl = await getDownloadURL(photoRef);
+      }
+
+      const tripData = {
+        route: document.getElementById('f-route').value.trim(),
+        start: document.getElementById('f-start').value,
+        offload: document.getElementById('f-offload').value,
+        tonnes: parseFloat(document.getElementById('f-tonnes').value) || 0,
+        commodityPrice: parseFloat(document.getElementById('f-commodity').value) || 0,
+        fuel: parseFloat(document.getElementById('f-fuel').value) || 0,
+        fuelPrice: parseFloat(document.getElementById('f-fuelprice').value) || 0,
+        allowance: parseFloat(document.getElementById('f-allowance').value) || 0,
+        truck: currentProfile.truckPlate || '',
+        driverUid: currentUid,
+        driverName: currentProfile.name || '',
+        status: 'active',
+        podPhotoUrl,
+        createdAt: serverTimestamp()
+      };
+
+      await setDoc(tripRef, tripData);
+
+      msg.textContent = 'Trip submitted successfully.';
+      msg.classList.add('ok');
+      document.getElementById('trip-form').reset();
+    } catch (err) {
+      msg.textContent = 'Something went wrong submitting this trip. Please try again.';
+      msg.classList.add('err');
+    } finally {
+      submitBtn.disabled = false; submitBtn.textContent = 'Submit trip';
+    }
+  });
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('driver-service-worker.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
