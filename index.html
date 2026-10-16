@@ -510,6 +510,7 @@
   }
 
   let finances, finTotals, finTotalCost, finMargin;
+  let chartFleet, chartDrivers, chartCosts;
 
   function renderFinanceAndDashboard(){
     finances = computeFinances();
@@ -784,7 +785,6 @@
   });
 
   // Charts — recreated each time renderAll() runs, so they always reflect current data
-  let chartFleet, chartDrivers, chartCosts;
   function renderCharts(){
     const active = data.trucks.filter(t=>t.status==='active').length;
     const maint = data.trucks.filter(t=>t.status==='maint').length;
