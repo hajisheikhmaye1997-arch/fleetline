@@ -1,3 +1,4 @@
+
 const CACHE_NAME = "fleetline-cache-v2";
 const ASSETS = [
   "./index.html",
@@ -22,8 +23,6 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Network-first: always try to fetch the latest version first.
-// Falls back to the cached copy only if there's no internet connection.
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(event.request)
