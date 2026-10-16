@@ -209,7 +209,7 @@
         <span class="label">Finances</span>
       </div>
     </nav>
-    <div class="sidebar-foot">Fleetline v1.0 — demo data</div>
+    <div class="sidebar-foot">Fleetline v1.0<br><a href="#" onclick="resetSampleData(); return false;" style="color:#9CA098;">Reset sample data</a> · <a href="#" onclick="clearAllData(); return false;" style="color:#9CA098;">Start empty</a></div>
   </aside>
 
   <main>
@@ -218,7 +218,7 @@
         <div class="page-title" id="page-title">Dashboard</div>
         <div class="page-sub" id="page-sub">Overview of your fleet, drivers, and trips</div>
       </div>
-      <div class="profile-pill"><div class="avatar">JM</div> Jordan Mensah</div>
+      <div class="profile-pill" style="padding:6px;"><div class="avatar" style="font-size:16px; background:none;">🚚</div></div>
     </div>
     <div class="roadline"></div>
 
@@ -229,30 +229,30 @@
         <div class="stat-grid">
           <div class="stat-hero">
             <div>
-              <div class="num">14</div>
+              <div class="num" id="db-total-trucks">—</div>
               <div class="lbl">Total trucks</div>
             </div>
             <div class="breakdown">
-              <div><b>12</b>Active</div>
-              <div><b>2</b>Maintenance</div>
-              <div><b>0</b>Suspended</div>
+              <div><b id="db-active">—</b>Active</div>
+              <div><b id="db-maint">—</b>Maintenance</div>
+              <div><b id="db-suspended">—</b>Suspended</div>
             </div>
           </div>
           <div class="stat-card orange">
             <div class="lbl">Total drivers</div>
-            <div class="num">17</div>
+            <div class="num" id="db-total-drivers">—</div>
           </div>
           <div class="stat-card moss">
             <div class="lbl">On duty</div>
-            <div class="num">11</div>
+            <div class="num" id="db-on-duty">—</div>
           </div>
           <div class="stat-card">
             <div class="lbl">On leave</div>
-            <div class="num">2</div>
+            <div class="num" id="db-on-leave">—</div>
           </div>
           <div class="stat-card brick">
             <div class="lbl">Licenses expiring soon</div>
-            <div class="num">3</div>
+            <div class="num" id="db-expiring">—</div>
           </div>
         </div>
 
@@ -282,9 +282,9 @@
       <!-- TRUCKS VIEW -->
       <div class="view" id="view-trucks">
         <div class="tbl-wrap">
-          <div class="tbl-head"><h3>Fleet roster</h3><div class="page-sub">14 trucks</div></div>
+          <div class="tbl-head"><h3>Fleet roster</h3><div style="display:flex; align-items:center; gap:14px;"><div class="page-sub" id="trucks-count">— trucks</div><button onclick="openTruckModal()" style="border:none; background:var(--orange); color:#161616; border-radius:6px; padding:7px 14px; font-size:12.5px; font-weight:700; font-family:inherit; cursor:pointer;">+ Add truck</button></div></div>
           <table>
-            <thead><tr><th>Truck</th><th>Model</th><th>Driver</th><th>Last service</th><th>Next service</th><th>Status</th></tr></thead>
+            <thead><tr><th>Truck</th><th>Model</th><th>Driver</th><th>Last service</th><th>Next service</th><th>Status</th><th></th></tr></thead>
             <tbody id="trucks-body"></tbody>
           </table>
         </div>
@@ -293,9 +293,9 @@
       <!-- DRIVERS VIEW -->
       <div class="view" id="view-drivers">
         <div class="tbl-wrap">
-          <div class="tbl-head"><h3>Drivers</h3><div class="page-sub">17 drivers</div></div>
+          <div class="tbl-head"><h3>Drivers</h3><div style="display:flex; align-items:center; gap:14px;"><div class="page-sub" id="drivers-count">— drivers</div><button onclick="openDriverModal()" style="border:none; background:var(--orange); color:#161616; border-radius:6px; padding:7px 14px; font-size:12.5px; font-weight:700; font-family:inherit; cursor:pointer;">+ Add driver</button></div></div>
           <table>
-            <thead><tr><th>Driver</th><th>License</th><th>Assigned truck</th><th>Status</th></tr></thead>
+            <thead><tr><th>Driver</th><th>License</th><th>Assigned truck</th><th>Status</th><th></th></tr></thead>
             <tbody id="drivers-body"></tbody>
           </table>
         </div>
@@ -304,9 +304,9 @@
       <!-- TRIPS VIEW -->
       <div class="view" id="view-trips">
         <div class="tbl-wrap">
-          <div class="tbl-head"><h3>Trips</h3><div class="page-sub">Last 7 days</div></div>
+          <div class="tbl-head"><h3>Trips</h3><div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;"><button onclick="openTripModal()" style="border:none; background:var(--orange); color:#161616; border-radius:6px; padding:7px 14px; font-size:12.5px; font-weight:700; font-family:inherit; cursor:pointer;">+ Add trip</button><button onclick="generateMonthlyReport()" style="border:1px solid var(--line); background:#fff; border-radius:6px; padding:7px 14px; font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer; color:var(--ink);">Download monthly report</button></div></div>
           <table>
-            <thead><tr><th>Start date</th><th>Route</th><th>Truck</th><th>Tonnes</th><th>Commodity price/tonne</th><th>Fuel used</th><th>Fuel price/L</th><th>Offloading date</th><th>Driver allowance</th><th>Status</th></tr></thead>
+            <thead><tr><th>Start date</th><th>Route</th><th>Truck</th><th>Tonnes</th><th>Commodity price/tonne</th><th>Fuel used</th><th>Fuel price/L</th><th>Offloading date</th><th>Driver allowance</th><th>Status</th><th></th></tr></thead>
             <tbody id="trips-body"></tbody>
           </table>
         </div>
@@ -378,9 +378,9 @@
         </div>
 
         <div class="tbl-wrap">
-          <div class="tbl-head"><h3>Cost per truck</h3><div class="page-sub">This month</div></div>
+          <div class="tbl-head"><h3>Cost per truck</h3><div style="display:flex; align-items:center; gap:14px;"><div class="page-sub">This month</div><button onclick="generateMonthlyReport()" style="border:1px solid var(--line); background:#fff; border-radius:6px; padding:7px 14px; font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer; color:var(--ink);">Download monthly report</button></div></div>
           <table>
-            <thead><tr><th>Truck</th><th>Fuel</th><th>Maintenance</th><th>Loan/lease</th><th>Loan balance</th><th>Driver salary</th><th>Driver allowance</th><th>Other</th><th>Income</th><th>Expenses</th><th>Net</th></tr></thead>
+            <thead><tr><th>Truck</th><th>Fuel</th><th>Maintenance</th><th>Loan/lease</th><th>Loan balance</th><th>Driver salary</th><th>Driver allowance</th><th>Other</th><th>Income</th><th>Expenses</th><th>Net</th><th></th></tr></thead>
             <tbody id="finances-body"></tbody>
           </table>
         </div>
@@ -390,8 +390,23 @@
   </main>
 </div>
 
+<div id="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; padding:16px;">
+  <div style="background:#fff; border-radius:10px; padding:22px; width:100%; max-width:420px; max-height:85vh; overflow-y:auto;">
+    <h3 id="modal-title" style="font-family:'Barlow Condensed'; font-size:20px; font-weight:600; margin-bottom:16px;"></h3>
+    <div id="modal-fields"></div>
+    <div style="display:flex; gap:10px; margin-top:6px;">
+      <button id="modal-cancel" style="flex:1; padding:11px; border:1px solid var(--line); background:#fff; border-radius:6px; font-weight:600; font-size:14px; font-family:inherit; cursor:pointer; color:var(--ink);">Cancel</button>
+      <button id="modal-save" style="flex:1; padding:11px; border:none; background:var(--orange); color:#161616; border-radius:6px; font-weight:700; font-size:14px; font-family:inherit; cursor:pointer;">Save</button>
+    </div>
+    <button id="modal-delete" style="display:none; width:100%; margin-top:10px; padding:10px; border:none; background:none; color:var(--brick); font-weight:600; font-size:13.5px; font-family:inherit; cursor:pointer;">Delete</button>
+  </div>
+</div>
+
 <script>
-  const trucks = [
+  const STORAGE_KEY = 'fleetline_data_v1';
+
+  const DEFAULT_DATA = {
+    trucks: [
     {id:"KDA 123X", model:"Freightliner Cascadia", driver:"D. Okafor", lastService:"228,900 km", nextService:"240,000 km", status:"active"},
     {id:"KBZ 445T", model:"Volvo VNL 760", driver:"M. Alvarez", lastService:"148,300 km", nextService:"160,000 km", status:"active"},
     {id:"KCM 902L", model:"Kenworth T680", driver:"S. Chen", lastService:"329,400 km", nextService:"340,000 km", status:"active"},
@@ -400,8 +415,8 @@
     {id:"KCY 118R", model:"Mack Anthem", driver:"J. Torres", lastService:"294,800 km", nextService:"300,000 km", status:"active"},
     {id:"KDF 560P", model:"Volvo VNL 760", driver:"L. Novak", lastService:"207,900 km", nextService:"220,000 km", status:"maint"},
     {id:"KBP 984S", model:"Kenworth T680", driver:"P. Osei", lastService:"105,200 km", nextService:"120,000 km", status:"active"},
-  ];
-  const drivers = [
+    ],
+    drivers: [
     {name:"D. Okafor", license:"CDL-A · exp 5d", truck:"KDA 123X", status:"duty"},
     {name:"M. Alvarez", license:"CDL-A · exp 90d", truck:"KBZ 445T", status:"duty"},
     {name:"S. Chen", license:"CDL-A · exp 210d", truck:"KCM 902L", status:"duty"},
@@ -409,17 +424,16 @@
     {name:"J. Torres", license:"CDL-A · exp 60d", truck:"KCY 118R", status:"leave"},
     {name:"L. Novak", license:"CDL-A · exp 300d", truck:"KDF 560P", status:"duty"},
     {name:"P. Osei", license:"CDL-A · exp 45d", truck:"KBP 984S", status:"duty"},
-  ];
-  const trips = [
+    ],
+    trips: [
     {route:"Chicago → Detroit", truck:"KDA 123X", driver:"D. Okafor", start:"Sep 10, 2026", offload:"Sep 11, 2026", tonnes:18.5, commodityPrice:8200, fuel:118, fuelPrice:194, allowance:4500, status:"active"},
     {route:"Dallas → Houston", truck:"KBZ 445T", driver:"M. Alvarez", start:"Sep 11, 2026", offload:"Sep 11, 2026", tonnes:14.2, commodityPrice:7600, fuel:96, fuelPrice:194, allowance:3800, status:"active"},
     {route:"Atlanta → Charlotte", truck:"KCM 902L", driver:"S. Chen", start:"Sep 9, 2026", offload:"Sep 10, 2026", tonnes:16.8, commodityPrice:6900, fuel:102, fuelPrice:191, allowance:3800, status:"duty"},
     {route:"Phoenix → San Diego", truck:"KBN 771M", driver:"R. Adeyemi", start:"Sep 12, 2026", offload:"Sep 13, 2026", tonnes:22.0, commodityPrice:9100, fuel:151, fuelPrice:196, allowance:5200, status:"active"},
     {route:"Seattle → Portland", truck:"KCY 118R", driver:"J. Torres", start:"Sep 8, 2026", offload:"Sep 8, 2026", tonnes:11.4, commodityPrice:7100, fuel:74, fuelPrice:192, allowance:2900, status:"leave"},
     {route:"Miami → Orlando", truck:"KBP 984S", driver:"P. Osei", start:"Sep 12, 2026", offload:"Sep 12, 2026", tonnes:15.6, commodityPrice:7800, fuel:99, fuelPrice:193, allowance:3800, status:"active"},
-  ];
-  // Fixed monthly costs not derived from trips (maintenance, loan payments, base salary, misc)
-  const financeExtras = {
+    ],
+    financeExtras: {
     "KDA 123X": {maint:45000, loan:38000, loanBalance:720000, salary:85000, other:6000},
     "KBZ 445T": {maint:26000, loan:0,     loanBalance:0,      salary:85000, other:3000},
     "KCM 902L": {maint:68000, loan:45000, loanBalance:1050000,salary:78000, other:12000},
@@ -428,70 +442,333 @@
     "KCY 118R": {maint:36000, loan:0,     loanBalance:0,      salary:85000, other:3500},
     "KDF 560P": {maint:103000,loan:45000, loanBalance:1210000,salary:85000, other:15000},
     "KBP 984S": {maint:16000, loan:41000, loanBalance:490000, salary:78000, other:2500},
+    }
   };
 
-  // Aggregate trip-derived numbers (fuel cost, income, allowance) per truck
-  function tripAggregates(truckId){
-    return trips.filter(t => t.truck === truckId).reduce((acc, t) => {
-      acc.fuel += t.fuel * t.fuelPrice;
-      acc.income += t.tonnes * t.commodityPrice;
-      acc.allowance += t.allowance;
-      return acc;
-    }, {fuel:0, income:0, allowance:0});
+  function loadData(){
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return JSON.parse(JSON.stringify(DEFAULT_DATA));
   }
+  let data = loadData();
+  function saveData(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
 
-  const finances = trucks.map(tr => {
-    const extra = financeExtras[tr.id] || {maint:0, loan:0, loanBalance:0, salary:0, other:0};
-    const agg = tripAggregates(tr.id);
-    return { truck: tr.id, fuel: agg.fuel, income: agg.income, allowance: agg.allowance, ...extra };
-  });
+  window.resetSampleData = function(){
+    if (!confirm('Reset all data back to the original sample data? This replaces anything you\'ve added or edited.')) return;
+    data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    saveData();
+    renderAll();
+  };
+
+  window.clearAllData = function(){
+    if (!confirm('Clear EVERYTHING and start with a completely empty fleet? This cannot be undone.')) return;
+    data = { trucks: [], drivers: [], trips: [], financeExtras: {} };
+    saveData();
+    renderAll();
+  };
+
+  const money = n => 'KSh ' + Math.round(n).toLocaleString('en-US');
+  const kshShort = n => 'KSh ' + ((n||0)/1000).toFixed(1) + 'k';
 
   function pillFor(status){
     const map = {active:"active", maint:"maint", duty:"duty", leave:"leave"};
     const label = {active:"Active", maint:"Maintenance", duty:"On duty", leave:"On leave"};
-    return `<span class="pill ${map[status]}">${label[status]}</span>`;
+    return `<span class="pill ${map[status] || 'active'}">${label[status] || status}</span>`;
   }
 
-  document.getElementById('trucks-body').innerHTML = trucks.map(t => `
-    <tr><td class="truck-id">${t.id}</td><td>${t.model}</td><td>${t.driver}</td><td>${t.lastService}</td><td>${t.nextService}</td><td>${pillFor(t.status)}</td></tr>
-  `).join('');
+  // Aggregate trip-derived numbers (fuel cost, income, allowance) per truck
+  function tripAggregates(truckId){
+    return data.trips.filter(t => t.truck === truckId).reduce((acc, t) => {
+      acc.fuel += (t.fuel||0) * (t.fuelPrice||0);
+      acc.income += (t.tonnes||0) * (t.commodityPrice||0);
+      acc.allowance += (t.allowance||0);
+      return acc;
+    }, {fuel:0, income:0, allowance:0});
+  }
 
-  document.getElementById('drivers-body').innerHTML = drivers.map(d => `
-    <tr><td><div class="driver-cell"><div class="mini-avatar">${d.name.split(' ').map(w=>w[0]).join('')}</div>${d.name}</div></td><td>${d.license}</td><td>${d.truck}</td><td>${pillFor(d.status)}</td></tr>
-  `).join('');
+  function computeFinances(){
+    return data.trucks.map(tr => {
+      const extra = data.financeExtras[tr.id] || {maint:0, loan:0, loanBalance:0, salary:0, other:0};
+      const agg = tripAggregates(tr.id);
+      return { truck: tr.id, fuel: agg.fuel, income: agg.income, allowance: agg.allowance, ...extra };
+    });
+  }
 
-  document.getElementById('trips-body').innerHTML = trips.map(t => `
-    <tr><td>${t.start}</td><td>${t.route}</td><td>${t.truck}</td><td>${t.tonnes} t</td><td>KSh ${t.commodityPrice.toLocaleString('en-US')}</td><td>${t.fuel} L</td><td>KSh ${t.fuelPrice}</td><td>${t.offload}</td><td>KSh ${t.allowance.toLocaleString('en-US')}</td><td>${pillFor(t.status)}</td></tr>
-  `).join('');
+  function renderTrucks(){
+    document.getElementById('trucks-count').textContent = data.trucks.length + ' trucks';
+    document.getElementById('trucks-body').innerHTML = data.trucks.map((t,i) => `
+      <tr><td class="truck-id">${t.id}</td><td>${t.model}</td><td>${t.driver||'—'}</td><td>${t.lastService}</td><td>${t.nextService}</td><td>${pillFor(t.status)}</td><td><button onclick="openTruckModal(${i})" style="border:none; background:none; cursor:pointer; color:var(--teal); font-weight:600; font-size:12.5px; font-family:inherit;">Edit</button></td></tr>
+    `).join('') || '<tr><td colspan="7" style="color:var(--mute); text-align:center; padding:24px;">No trucks yet — tap "+ Add truck" to get started</td></tr>';
+  }
 
-  const money = n => 'KSh ' + Math.round(n).toLocaleString('en-US');
-  document.getElementById('finances-body').innerHTML = finances.map(f => {
-    const expenses = f.fuel+f.maint+f.loan+f.salary+f.allowance+f.other;
-    const net = f.income - expenses;
-    const netColor = net >= 0 ? 'var(--moss)' : 'var(--brick)';
-    return `<tr><td class="truck-id">${f.truck}</td><td>${money(f.fuel)}</td><td>${money(f.maint)}</td><td>${f.loan ? money(f.loan) : '—'}</td><td>${f.loanBalance ? money(f.loanBalance) : '—'}</td><td>${f.salary ? money(f.salary) : '—'}</td><td>${f.allowance ? money(f.allowance) : '—'}</td><td>${f.other ? money(f.other) : '—'}</td><td>${money(f.income)}</td><td>${money(expenses)}</td><td style="color:${netColor}; font-weight:700;">${net >= 0 ? '' : '-'}${money(Math.abs(net))}</td></tr>`;
-  }).join('');
+  function renderDrivers(){
+    document.getElementById('drivers-count').textContent = data.drivers.length + ' drivers';
+    document.getElementById('drivers-body').innerHTML = data.drivers.map((d,i) => `
+      <tr><td><div class="driver-cell"><div class="mini-avatar">${(d.name||'?').split(' ').map(w=>w[0]).join('')}</div>${d.name}</div></td><td>${d.license}</td><td>${d.truck}</td><td>${pillFor(d.status)}</td><td><button onclick="openDriverModal(${i})" style="border:none; background:none; cursor:pointer; color:var(--teal); font-weight:600; font-size:12.5px; font-family:inherit;">Edit</button></td></tr>
+    `).join('') || '<tr><td colspan="5" style="color:var(--mute); text-align:center; padding:24px;">No drivers yet — tap "+ Add driver" to get started</td></tr>';
+  }
 
-  // Fleet-wide totals, computed from the per-truck finance rows above
-  const finTotals = finances.reduce((acc, f) => {
-    acc.fuel += f.fuel; acc.maint += f.maint; acc.loan += f.loan;
-    acc.salary += f.salary; acc.allowance += f.allowance; acc.other += f.other;
-    acc.income += f.income;
-    return acc;
-  }, {fuel:0, maint:0, loan:0, salary:0, allowance:0, other:0, income:0});
-  const finTotalCost = finTotals.fuel + finTotals.maint + finTotals.loan + finTotals.salary + finTotals.allowance + finTotals.other;
-  const finMargin = finTotals.income ? ((finTotals.income - finTotalCost) / finTotals.income * 100) : 0;
+  function renderTrips(){
+    document.getElementById('trips-body').innerHTML = data.trips.map((t,i) => `
+      <tr><td>${t.start}</td><td>${t.route}</td><td>${t.truck}</td><td>${t.tonnes} t</td><td>KSh ${(t.commodityPrice||0).toLocaleString('en-US')}</td><td>${t.fuel} L</td><td>KSh ${t.fuelPrice}</td><td>${t.offload}</td><td>KSh ${(t.allowance||0).toLocaleString('en-US')}</td><td>${pillFor(t.status)}</td><td><button onclick="openTripModal(${i})" style="border:none; background:none; cursor:pointer; color:var(--teal); font-weight:600; font-size:12.5px; font-family:inherit;">Edit</button></td></tr>
+    `).join('') || '<tr><td colspan="11" style="color:var(--mute); text-align:center; padding:24px;">No trips yet — tap "+ Add trip" to get started</td></tr>';
+  }
 
-  const kshShort = n => 'KSh ' + (n/1000).toFixed(1) + 'k';
-  document.getElementById('fin-total-cost').textContent = kshShort(finTotalCost);
-  document.getElementById('fin-b-fuel').textContent = kshShort(finTotals.fuel);
-  document.getElementById('fin-b-maint').textContent = kshShort(finTotals.maint);
-  document.getElementById('fin-b-loan').textContent = kshShort(finTotals.loan);
-  document.getElementById('fin-b-allowance').textContent = kshShort(finTotals.allowance);
-  document.getElementById('fin-salary').textContent = kshShort(finTotals.salary);
-  document.getElementById('fin-allowance').textContent = kshShort(finTotals.allowance);
-  document.getElementById('fin-revenue').textContent = kshShort(finTotals.income);
-  document.getElementById('fin-margin').textContent = finMargin.toFixed(1) + '%';
+  let finances, finTotals, finTotalCost, finMargin;
+  let chartFleet, chartDrivers, chartCosts;
+
+  function renderFinanceAndDashboard(){
+    finances = computeFinances();
+
+    document.getElementById('finances-body').innerHTML = finances.map((f,i) => {
+      const expenses = f.fuel+f.maint+f.loan+f.salary+f.allowance+f.other;
+      const net = f.income - expenses;
+      const netColor = net >= 0 ? 'var(--moss)' : 'var(--brick)';
+      return `<tr><td class="truck-id">${f.truck}</td><td>${money(f.fuel)}</td><td>${money(f.maint)}</td><td>${f.loan ? money(f.loan) : '—'}</td><td>${f.loanBalance ? money(f.loanBalance) : '—'}</td><td>${f.salary ? money(f.salary) : '—'}</td><td>${f.allowance ? money(f.allowance) : '—'}</td><td>${f.other ? money(f.other) : '—'}</td><td>${money(f.income)}</td><td>${money(expenses)}</td><td style="color:${netColor}; font-weight:700;">${net >= 0 ? '' : '-'}${money(Math.abs(net))}</td><td><button onclick="openFinanceModal('${f.truck}')" style="border:none; background:none; cursor:pointer; color:var(--teal); font-weight:600; font-size:12.5px; font-family:inherit;">Edit</button></td></tr>`;
+    }).join('') || '<tr><td colspan="12" style="color:var(--mute); text-align:center; padding:24px;">Add a truck first to see finance data</td></tr>';
+
+    finTotals = finances.reduce((acc, f) => {
+      acc.fuel += f.fuel; acc.maint += f.maint; acc.loan += f.loan;
+      acc.salary += f.salary; acc.allowance += f.allowance; acc.other += f.other;
+      acc.income += f.income;
+      return acc;
+    }, {fuel:0, maint:0, loan:0, salary:0, allowance:0, other:0, income:0});
+    finTotalCost = finTotals.fuel + finTotals.maint + finTotals.loan + finTotals.salary + finTotals.allowance + finTotals.other;
+    finMargin = finTotals.income ? ((finTotals.income - finTotalCost) / finTotals.income * 100) : 0;
+
+    document.getElementById('fin-total-cost').textContent = kshShort(finTotalCost);
+    document.getElementById('fin-b-fuel').textContent = kshShort(finTotals.fuel);
+    document.getElementById('fin-b-maint').textContent = kshShort(finTotals.maint);
+    document.getElementById('fin-b-loan').textContent = kshShort(finTotals.loan);
+    document.getElementById('fin-b-allowance').textContent = kshShort(finTotals.allowance);
+    document.getElementById('fin-salary').textContent = kshShort(finTotals.salary);
+    document.getElementById('fin-allowance').textContent = kshShort(finTotals.allowance);
+    document.getElementById('fin-revenue').textContent = kshShort(finTotals.income);
+    document.getElementById('fin-margin').textContent = finMargin.toFixed(1) + '%';
+
+    // Dashboard stat cards
+    const active = data.trucks.filter(t=>t.status==='active').length;
+    const maint = data.trucks.filter(t=>t.status==='maint').length;
+    const suspended = data.trucks.filter(t=>t.status==='suspended').length;
+    document.getElementById('db-total-trucks').textContent = data.trucks.length;
+    document.getElementById('db-active').textContent = active;
+    document.getElementById('db-maint').textContent = maint;
+    document.getElementById('db-suspended').textContent = suspended;
+    document.getElementById('db-total-drivers').textContent = data.drivers.length;
+    document.getElementById('db-on-duty').textContent = data.drivers.filter(d=>d.status==='duty').length;
+    document.getElementById('db-on-leave').textContent = data.drivers.filter(d=>d.status==='leave').length;
+    const expiring = data.drivers.filter(d => {
+      const m = (d.license||'').match(/exp (\d+)d/);
+      return m && parseInt(m[1],10) <= 14;
+    }).length;
+    document.getElementById('db-expiring').textContent = expiring;
+  }
+
+  function renderAll(){ renderTrucks(); renderDrivers(); renderTrips(); renderFinanceAndDashboard(); renderCharts(); }
+  renderAll();
+
+  // ---- Generic modal helper ----
+  function openModal({title, fields, values, onSave, onDelete}){
+    document.getElementById('modal-title').textContent = title;
+    const fieldsEl = document.getElementById('modal-fields');
+    fieldsEl.innerHTML = fields.map(f => `
+      <div style="margin-bottom:12px;">
+        <label style="display:block; font-size:12px; font-weight:600; color:var(--mute); margin-bottom:4px;">${f.label}</label>
+        ${f.type === 'select'
+          ? `<select id="mf-${f.key}" style="width:100%; padding:10px; border:1px solid var(--line); border-radius:6px; font-size:14px; font-family:inherit;">${f.options.map(o=>`<option value="${o.value}" ${values[f.key]===o.value?'selected':''}>${o.label}</option>`).join('')}</select>`
+          : `<input id="mf-${f.key}" type="${f.type||'text'}" ${f.step?`step="${f.step}"`:''} value="${values[f.key] ?? ''}" style="width:100%; padding:10px; border:1px solid var(--line); border-radius:6px; font-size:14px; font-family:inherit;">`
+        }
+      </div>
+    `).join('');
+    document.getElementById('modal-overlay').style.display = 'flex';
+    document.getElementById('modal-save').onclick = () => {
+      const result = {};
+      fields.forEach(f => {
+        const el = document.getElementById('mf-'+f.key);
+        result[f.key] = (f.type === 'number') ? (parseFloat(el.value) || 0) : el.value;
+      });
+      onSave(result);
+      saveData();
+      renderAll();
+      closeModal();
+    };
+    document.getElementById('modal-cancel').onclick = closeModal;
+    const delBtn = document.getElementById('modal-delete');
+    if (onDelete) {
+      delBtn.style.display = 'block';
+      delBtn.onclick = () => {
+        if (confirm('Delete this entry?')) {
+          onDelete();
+          saveData();
+          renderAll();
+          closeModal();
+        }
+      };
+    } else {
+      delBtn.style.display = 'none';
+    }
+  }
+  function closeModal(){ document.getElementById('modal-overlay').style.display = 'none'; }
+
+  const STATUS_OPTIONS_TRUCK = [{value:'active',label:'Active'},{value:'maint',label:'Maintenance'},{value:'suspended',label:'Suspended'}];
+  const STATUS_OPTIONS_DRIVER = [{value:'duty',label:'On duty'},{value:'leave',label:'On leave'}];
+  const STATUS_OPTIONS_TRIP = [{value:'active',label:'Active'},{value:'duty',label:'Duty'},{value:'leave',label:'Leave'}];
+
+  window.openTruckModal = function(idx){
+    const isEdit = idx !== undefined;
+    const existing = isEdit ? data.trucks[idx] : {id:'',model:'',driver:'',lastService:'',nextService:'',status:'active'};
+    openModal({
+      title: isEdit ? 'Edit truck' : 'Add truck',
+      fields: [
+        {key:'id', label:'Number plate', type:'text'},
+        {key:'model', label:'Model', type:'text'},
+        {key:'driver', label:'Driver name', type:'text'},
+        {key:'lastService', label:'Last service (km)', type:'text'},
+        {key:'nextService', label:'Next service (km)', type:'text'},
+        {key:'status', label:'Status', type:'select', options:STATUS_OPTIONS_TRUCK},
+      ],
+      values: existing,
+      onSave: (result) => { if (isEdit) data.trucks[idx] = result; else data.trucks.push(result); },
+      onDelete: isEdit ? () => { data.trucks.splice(idx,1); } : null
+    });
+  };
+
+  window.openDriverModal = function(idx){
+    const isEdit = idx !== undefined;
+    const existing = isEdit ? data.drivers[idx] : {name:'',license:'',truck:'',status:'duty'};
+    openModal({
+      title: isEdit ? 'Edit driver' : 'Add driver',
+      fields: [
+        {key:'name', label:'Name', type:'text'},
+        {key:'license', label:'License (e.g. CDL-A · exp 90d)', type:'text'},
+        {key:'truck', label:'Assigned truck plate', type:'text'},
+        {key:'status', label:'Status', type:'select', options:STATUS_OPTIONS_DRIVER},
+      ],
+      values: existing,
+      onSave: (result) => { if (isEdit) data.drivers[idx] = result; else data.drivers.push(result); },
+      onDelete: isEdit ? () => { data.drivers.splice(idx,1); } : null
+    });
+  };
+
+  window.openTripModal = function(idx){
+    const isEdit = idx !== undefined;
+    const existing = isEdit ? data.trips[idx] : {route:'',truck:'',driver:'',start:'',offload:'',tonnes:0,commodityPrice:0,fuel:0,fuelPrice:0,allowance:0,status:'active'};
+    openModal({
+      title: isEdit ? 'Edit trip' : 'Add trip',
+      fields: [
+        {key:'route', label:'Route', type:'text'},
+        {key:'truck', label:'Truck plate', type:'text'},
+        {key:'driver', label:'Driver name', type:'text'},
+        {key:'start', label:'Start date', type:'text'},
+        {key:'offload', label:'Offloading date', type:'text'},
+        {key:'tonnes', label:'Tonnes carried', type:'number', step:'0.1'},
+        {key:'commodityPrice', label:'Commodity price / tonne (KSh)', type:'number'},
+        {key:'fuel', label:'Fuel used (litres)', type:'number', step:'0.1'},
+        {key:'fuelPrice', label:'Fuel price / litre (KSh)', type:'number'},
+        {key:'allowance', label:'Driver allowance (KSh)', type:'number'},
+        {key:'status', label:'Status', type:'select', options:STATUS_OPTIONS_TRIP},
+      ],
+      values: existing,
+      onSave: (result) => { if (isEdit) data.trips[idx] = result; else data.trips.push(result); },
+      onDelete: isEdit ? () => { data.trips.splice(idx,1); } : null
+    });
+  };
+
+  window.openFinanceModal = function(truckId){
+    const existing = data.financeExtras[truckId] || {maint:0, loan:0, loanBalance:0, salary:0, other:0};
+    openModal({
+      title: 'Edit costs — ' + truckId,
+      fields: [
+        {key:'maint', label:'Maintenance (KSh / month)', type:'number'},
+        {key:'loan', label:'Loan / lease payment (KSh / month)', type:'number'},
+        {key:'loanBalance', label:'Loan balance outstanding (KSh)', type:'number'},
+        {key:'salary', label:'Driver salary (KSh / month)', type:'number'},
+        {key:'other', label:'Other expenses (KSh / month)', type:'number'},
+      ],
+      values: existing,
+      onSave: (result) => { data.financeExtras[truckId] = result; },
+      onDelete: null
+    });
+  };
+
+  // ---- Monthly report (Trips + Finance), generated as a printable page -> "Save as PDF" ----
+  window.generateMonthlyReport = function(){
+    const now = new Date();
+    const monthLabel = now.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+    const generatedOn = now.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+
+    const tripTotals = data.trips.reduce((acc, t) => {
+      acc.tonnes += (t.tonnes||0);
+      acc.fuel += (t.fuel||0);
+      acc.allowance += (t.allowance||0);
+      return acc;
+    }, {tonnes:0, fuel:0, allowance:0});
+
+    const tripRows = data.trips.map(t => `
+      <tr>
+        <td>${t.start||'—'}</td><td>${t.route||'—'}</td><td>${t.truck||'—'}</td>
+        <td>${t.tonnes||0} t</td><td>${t.fuel||0} L</td><td>KSh ${(t.allowance||0).toLocaleString('en-US')}</td>
+        <td>${t.offload||'—'}</td><td style="text-transform:capitalize;">${t.status||''}</td>
+      </tr>`).join('');
+
+    const financeRows = finances.map(f => {
+      const expenses = f.fuel+f.maint+f.loan+f.salary+f.allowance+f.other;
+      const net = f.income - expenses;
+      return `<tr>
+        <td>${f.truck}</td><td>${money(f.fuel)}</td><td>${money(f.maint)}</td><td>${money(f.loan)}</td>
+        <td>${money(f.salary)}</td><td>${money(f.allowance)}</td><td>${money(f.other)}</td>
+        <td>${money(f.income)}</td><td>${money(expenses)}</td>
+        <td style="color:${net>=0 ? '#3F7D58':'#B23A2E'}; font-weight:700;">${net>=0?'':'-'}${money(Math.abs(net))}</td>
+      </tr>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <title>Fleetline — Monthly Report — ${monthLabel}</title>
+    <style>
+      body{ font-family: Arial, Helvetica, sans-serif; color:#181B18; padding:32px; }
+      h1{ font-size:22px; margin-bottom:2px; }
+      h2{ font-size:16px; margin:28px 0 10px 0; border-bottom:2px solid #181B18; padding-bottom:4px; }
+      .sub{ color:#6B6F6A; font-size:12.5px; margin-bottom:18px; }
+      table{ width:100%; border-collapse:collapse; font-size:11.5px; margin-bottom:6px; }
+      th{ text-align:left; background:#F2F1EC; padding:6px 8px; border-bottom:2px solid #DAD7CE; }
+      td{ padding:6px 8px; border-bottom:1px solid #EFEDE6; }
+      .totals{ font-size:12.5px; margin-top:8px; }
+      .totals b{ display:inline-block; margin-right:22px; }
+      .stat-line{ display:flex; gap:28px; margin-bottom:10px; font-size:13px; }
+      .stat-line div b{ display:block; font-size:18px; }
+      @media print { body{ padding:12mm; } h2{ page-break-before:auto; } tr{ page-break-inside:avoid; } }
+    </style></head>
+    <body>
+      <h1>Fleetline — Monthly Report</h1>
+      <div class="sub">${monthLabel} · generated ${generatedOn}</div>
+
+      <h2>Finance summary</h2>
+      <div class="stat-line">
+        <div><b>${kshShort(finTotalCost)}</b>Total fleet cost</div>
+        <div><b>${kshShort(finTotals.income)}</b>Revenue</div>
+        <div><b>${finMargin.toFixed(1)}%</b>Net margin</div>
+      </div>
+      <table>
+        <thead><tr><th>Truck</th><th>Fuel</th><th>Maintenance</th><th>Loan/lease</th><th>Salary</th><th>Allowance</th><th>Other</th><th>Income</th><th>Expenses</th><th>Net</th></tr></thead>
+        <tbody>${financeRows}</tbody>
+      </table>
+
+      <h2>Trips</h2>
+      <div class="totals"><b>${tripTotals.tonnes.toFixed(1)} t</b> total tonnes carried &nbsp; <b>${tripTotals.fuel} L</b> total fuel used &nbsp; <b>KSh ${tripTotals.allowance.toLocaleString('en-US')}</b> total driver allowance</div>
+      <table>
+        <thead><tr><th>Start date</th><th>Route</th><th>Truck</th><th>Tonnes</th><th>Fuel</th><th>Allowance</th><th>Offload date</th><th>Status</th></tr></thead>
+        <tbody>${tripRows}</tbody>
+      </table>
+    </body></html>`;
+
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 300);
+  };
 
   // Nav switching
   const titles = {
@@ -514,45 +791,49 @@
     });
   });
 
-  // Charts
-  new Chart(document.getElementById('chartFleet'), {
-    type:'doughnut',
-    data:{
-      labels:['Active','Maintenance','Suspended'],
-      datasets:[{ data:[12,2,0], backgroundColor:['#3F7D58','#B23A2E','#DAD7CE'], borderWidth:0 }]
-    },
-    options:{ plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}}}, cutout:'62%' }
-  });
+  // Charts — recreated each time renderAll() runs, so they always reflect current data
+  function renderCharts(){
+    const active = data.trucks.filter(t=>t.status==='active').length;
+    const maint = data.trucks.filter(t=>t.status==='maint').length;
+    const suspended = data.trucks.filter(t=>t.status==='suspended').length;
+    const onDuty = data.drivers.filter(d=>d.status==='duty').length;
+    const onLeave = data.drivers.filter(d=>d.status==='leave').length;
+    const expiring = data.drivers.filter(d => {
+      const m = (d.license||'').match(/exp (\d+)d/);
+      return m && parseInt(m[1],10) <= 14;
+    }).length;
 
-  new Chart(document.getElementById('chartDrivers'), {
-    type:'bar',
-    data:{
-      labels:['On duty','On leave','Active license','Expiring soon'],
-      datasets:[{ data:[11,2,14,3], backgroundColor:['#1E5F6E','#8A7C3D','#3F7D58','#B23A2E'], borderRadius:4, maxBarThickness:46 }]
-    },
-    options:{
-      plugins:{legend:{display:false}},
-      scales:{ y:{beginAtZero:true, grid:{color:'#EFEDE6'}}, x:{grid:{display:false}} }
-    }
-  });
+    if (chartFleet) chartFleet.destroy();
+    chartFleet = new Chart(document.getElementById('chartFleet'), {
+      type:'doughnut',
+      data:{ labels:['Active','Maintenance','Suspended'], datasets:[{ data:[active,maint,suspended], backgroundColor:['#3F7D58','#B23A2E','#DAD7CE'], borderWidth:0 }] },
+      options:{ plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}}}, cutout:'62%' }
+    });
 
-  new Chart(document.getElementById('chartCosts'), {
-    type:'bar',
-    data:{
-      labels:['Apr','May','Jun','Jul','Aug','Sep'],
-      datasets:[
-        { label:'Fuel', data:[298000,312000,327000,336000,329000, finTotals.fuel], backgroundColor:'#FF6A1A' },
-        { label:'Maintenance', data:[101000,130000,111000,145000,138000, finTotals.maint], backgroundColor:'#1E5F6E' },
-        { label:'Loan/lease', data:[204000,204000,204000,204000,204000, finTotals.loan], backgroundColor:'#DAD7CE' },
-        { label:'Driver salary', data:[295000,298000,301000,299000,302000, finTotals.salary], backgroundColor:'#3F7D58' },
-        { label:'Driver allowance', data:[24000,26500,25000,27800,26000, finTotals.allowance], backgroundColor:'#8A7C3D' }
-      ]
-    },
-    options:{
-      plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}}},
-      scales:{ x:{stacked:true, grid:{display:false}}, y:{stacked:true, grid:{color:'#EFEDE6'}, ticks:{callback:v=>'KSh '+(v/1000)+'k'}} }
-    }
-  });
+    if (chartDrivers) chartDrivers.destroy();
+    chartDrivers = new Chart(document.getElementById('chartDrivers'), {
+      type:'bar',
+      data:{ labels:['On duty','On leave','Active license','Expiring soon'],
+        datasets:[{ data:[onDuty,onLeave, data.drivers.length - expiring, expiring], backgroundColor:['#1E5F6E','#8A7C3D','#3F7D58','#B23A2E'], borderRadius:4, maxBarThickness:46 }] },
+      options:{ plugins:{legend:{display:false}}, scales:{ y:{beginAtZero:true, grid:{color:'#EFEDE6'}}, x:{grid:{display:false}} } }
+    });
+
+    if (chartCosts) chartCosts.destroy();
+    chartCosts = new Chart(document.getElementById('chartCosts'), {
+      type:'bar',
+      data:{ labels:['Apr','May','Jun','Jul','Aug','This month'],
+        datasets:[
+          { label:'Fuel', data:[298000,312000,327000,336000,329000, finTotals.fuel], backgroundColor:'#FF6A1A' },
+          { label:'Maintenance', data:[101000,130000,111000,145000,138000, finTotals.maint], backgroundColor:'#1E5F6E' },
+          { label:'Loan/lease', data:[204000,204000,204000,204000,204000, finTotals.loan], backgroundColor:'#DAD7CE' },
+          { label:'Driver salary', data:[295000,298000,301000,299000,302000, finTotals.salary], backgroundColor:'#3F7D58' },
+          { label:'Driver allowance', data:[24000,26500,25000,27800,26000, finTotals.allowance], backgroundColor:'#8A7C3D' }
+        ]
+      },
+      options:{ plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}}},
+        scales:{ x:{stacked:true, grid:{display:false}}, y:{stacked:true, grid:{color:'#EFEDE6'}, ticks:{callback:v=>'KSh '+(v/1000)+'k'}} } }
+    });
+  }
 </script>
 <script>
   if ('serviceWorker' in navigator) {
